@@ -1,5 +1,5 @@
 import numpy as np
-from Activation import *
+from src.Activation import *
 class RNN_HiddenLayer(object):
     def __init__(self,alpha,
                      squared_filter_length_limit,
@@ -147,8 +147,8 @@ class RNN_HiddenLayer(object):
             
         pre_hidden = self.pre_hidden
         pre_cell = self.pre_cell
-        print x_in.shape,self.params['input_inputGate_W'].shape
-        print pre_hidden.shape,self.params['cell_inputGate_W'].shape
+        print( x_in.shape,self.params['input_inputGate_W'].shape)
+        print( pre_hidden.shape,self.params['cell_inputGate_W'].shape)
         inside = np.dot(x_in,self.params['input_inputGate_W']*w_scale) + \
                           np.dot(pre_hidden,self.params['hidden_inputGate_W']*w_scale) + \
                           np.dot(pre_cell,np.diag(self.params['cell_inputGate_W']*w_scale))
@@ -196,8 +196,8 @@ class RNN_HiddenLayer(object):
         z = np.asarray(self.input)
         
         l_sen = len(g_uplayer)/self.batch_size
-        pre_cell = [self.init_cell for i in xrange(self.batch_size)]
-        pre_hidden = [self.init_hidden for i in xrange(self.batch_size)]
+        pre_cell = [self.init_cell for i in range(self.batch_size)]
+        pre_hidden = [self.init_hidden for i in range(self.batch_size)]
         pre_cell = pre_cell+self.cell[:len(g_uplayer)-self.batch_size]
         pre_hidden = pre_hidden+self.hidden[:len(g_uplayer)-self.batch_size]
         

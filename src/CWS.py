@@ -2,7 +2,9 @@ import numpy as np
 import sys
 import time
 from collections import OrderedDict
-from Activation import ReLU,Sigmoid,Tanh,Add_HiddenLayer
+# from Activation import ReLU,Sigmoid,Tanh,Add_HiddenLayer
+from src.Activation import ReLU,Sigmoid,Tanh,Add_HiddenLayer
+
 class CWS_Layer(object):
     def __init__(self, rng, n_in, n_out, W=None, b=None, activation = 'tanh'):
         multi = 1.0
@@ -128,7 +130,7 @@ class CWS(object):
         output = self.encode(x,flag)
         self.output.append(output)
         
-        for k in xrange(4):
+        for k in range(4):
             if dp_pre[k] is None:
                 continue
             for j in val[k]:
@@ -150,16 +152,16 @@ class CWS(object):
         ll = len(sentence)
         result = []
         init_v = [0.0, -self.INF, -self.INF, -self.INF,-1,-1,-1,-1]
-        for i in xrange(ll):
+        for i in range(ll):
             x = []
-            for j in xrange(self.preWindowSize):
+            for j in range(self.preWindowSize):
                 pos = i - self.preWindowSize + 1 + j
                 if(pos < 0):
                     x.append(BOSid)
                     continue
                 x.append(sentence[pos])
             #x.append(sentence[i])
-            for j in xrange(self.surWindowSize):
+            for j in range(self.surWindowSize):
                 pos = i + (j + 1)
                 if(pos >= ll):
                     x.append(EOSid)
@@ -174,11 +176,11 @@ class CWS(object):
         self.clear_layers()
         result = self.decode_fun(sentence, ans, flag)
         sen_len = len(ans)
-        ret = [-1 for i in xrange(sen_len)]
+        ret = [-1 for i in range(sen_len)]
         Max = None
         pos = 0
         cur = sen_len - 1
-        for i in xrange(4):
+        for i in range(4):
             if result[cur][i] is None:
                 continue
             if result[cur][i] > Max or Max is None:
@@ -191,7 +193,7 @@ class CWS(object):
             ret[cur] = pos
         
         cost = 0
-        for i in xrange(sen_len):
+        for i in range(sen_len):
             output = self.output[i]
             y_pred_in = ret
             y_ans_in = ans
@@ -206,11 +208,11 @@ class CWS(object):
         l_sen = len(sentence)
         g_outputLayer_W = np.zeros((self.layer_sizes[-1],4))
         g_outputLayer_b = np.zeros((4,))
-        for i in xrange(l_sen):
+        for i in range(l_sen):
             g_outputLayer_W[:,y[i]] += self.layers[-1].output[i]
             g_outputLayer_b[y[i]] += 1
         g_z = []
-        for i in xrange(l_sen):
+        for i in range(l_sen):
             g_z.append(((self.params['outputLayer_W'].T)[y[i]]))
         
         for layer in reversed(self.layers):
@@ -229,7 +231,7 @@ class CWS(object):
             self.batch_grad['outputLayer_b'] += g_outputLayer_b
         
         
-        for i in xrange(l_sen):
+        for i in range(l_sen):
             cur_y = y[i]
             pre_y = 0
             if(i>0):pre_y = y[i-1]
@@ -306,29 +308,29 @@ class CWS(object):
     def fit(self):
         M = len(self.data.data_train)
         batch_num = M / self.batch_size
-        print 'Start training...'
+        print ('Start training...')
         sys.stdout.flush()
         best_validation_F = -np.inf
         best_iter = 0
-        for epoch in xrange(self.n_epochs):
+        for epoch in range(self.n_epochs):
             (self.data.data_train,self.data.label_train) = self.data.shuffle(self.data.data_train,self.data.label_train)
             ae_costs = 0.0
             start_time = time.time()
-            for batch in xrange(batch_num + 1):
+            for batch in range(batch_num + 1):
                 start = batch * self.batch_size
                 end = min((batch + 1)*self.batch_size, M)
                 if(end<=start):continue
                 self.dict_bigram_Id = {}
                 self.dict_unigram_Id = {}
-                for index in xrange(start, end):
+                for index in range(start, end):
                     (y_pred,cost) = self.get_best(self.data.data_train[index], self.data.label_train[index], 1.0)
                     ae_costs += cost 
                     self.modify_batch_grad(self.data.data_train[index], y_pred, self.data.label_train[index])
                             
                 if (batch+1) % 50 == 0:
-                    print '50 batches proccessed'
-                    print '%d done!' % end
-                    print 'Training at batch %d, cost = %f' % (epoch*(batch_num+1)+batch + 1, ae_costs/((batch+1)*self.batch_size))
+                    print ('50 batches proccessed')
+                    print ('%d done!' % end)
+                    print ('Training at batch %d, cost = %f' % (epoch*(batch_num+1)+batch + 1, ae_costs/((batch+1)*self.batch_size)))
                     sys.stdout.flush()
                                     
                 self.update_w(end - start)
@@ -337,18 +339,18 @@ class CWS(object):
                 
 
             cur_cost = ae_costs/M
-            print 'Training at epoch %d, cost = %f' % (epoch + 1, cur_cost)
+            print ('Training at epoch %d, cost = %f' % (epoch + 1, cur_cost))
             if (epoch+1) % 10 == 0 :
                 self.test(self.data.data_train, self.data.label_train, "Train")
             (seg, eval_res) = self.test(self.data.data_dev, self.data.label_dev, "Dev")
             if(best_validation_F < eval_res[2]):
                 best_iter = epoch + 1
                 best_validation_F = eval_res[2]
-            print 'Current best_dev_F is %.2f, at %d epoch'%(best_validation_F,best_iter)
-            print 'Testing...'
+            print ('Current best_dev_F is %.2f, at %d epoch'%(best_validation_F,best_iter))
+            print ('Testing...')
             sys.stdout.flush()
             (seg, eval_res) = self.test(self.data.data_test, self.data.label_test, 'Test')
-            print 'Saving test result for %d_th epoch' % (epoch+1)
+            print ('Saving test result for %d_th epoch' % (epoch+1))
             sys.stdout.flush()
             suffix = '_%d' % (epoch+1)
             local_seg_result_file = self.seg_result_file + suffix 
@@ -362,31 +364,31 @@ class CWS(object):
             end_time = time.time()
             minu = int((end_time - start_time)/60)
             sec = (end_time - start_time) - 60 * minu
-            print 'Time: %d min %.2f sec' % (minu, sec)
+            print ('Time: %d min %.2f sec' % (minu, sec))
             sys.stdout.flush()
 
     def test(self, data, label, flag):
         res = []
         ans = []
         M = len(data)
-        for index in xrange(M):
+        for index in range(M):
             (y_pred,cost) = self.get_best(data[index], label[index], 0.0)
             res.append(y_pred)
         pred_seg = self.get_seg(data, res, self.data.dic_idx2c)
         ans_seg = self.get_seg(data, label, self.data.dic_idx2c)
         eval_res = self.evaluate(ans_seg, pred_seg)
-        print '%s: P = %f    R=%f    F=%f' % (flag, eval_res[0], eval_res[1], eval_res[2])
+        print ('%s: P = %f    R=%f    F=%f' % (flag, eval_res[0], eval_res[1], eval_res[2]))
         sys.stdout.flush()
         return (pred_seg, eval_res)
 
     def get_seg(self, data, label, ids):
         ret = []
-        for i in xrange(len(data)):
+        for i in range(len(data)):
             line = []
             word = u''
             sen = data[i]
             res = label[i]
-            for j in xrange(len(sen)):
+            for j in range(len(sen)):
                 if abs(res[j]) <= 1.0e-6:
                     word = ids[sen[j]]
                     line.append(word)
@@ -431,8 +433,8 @@ class CWS(object):
                 else:
                     wrong += 1
             tot_right += len(line2)
-            #print 'right=%d' % right
-            #print 'wrong=%d' % wrong
+            #print ('right=%d' % right)
+            #print( 'wrong=%d' % wrong)
         p = (1.0*right/(right+wrong))
         r = (1.0*right/tot_right)
         f = (2*p*r/(p+r))

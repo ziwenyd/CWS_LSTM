@@ -1,5 +1,5 @@
 import numpy as np
-from Activation import *
+from src.Activation import *
 class GRU_HiddenLayer(object):
     def __init__(self,alpha,
                      squared_filter_length_limit,
@@ -194,8 +194,8 @@ class GRU_HiddenLayer(object):
         z = np.asarray(self.input)
         
         l_sen = len(g_uplayer)/self.batch_size
-        pre_cell = [self.init_cell for i in xrange(self.batch_size)]
-        pre_hidden = [self.init_hidden for i in xrange(self.batch_size)]
+        pre_cell = [self.init_cell for i in range(self.batch_size)]
+        pre_hidden = [self.init_hidden for i in range(self.batch_size)]
         pre_cell = pre_cell+self.cell[:len(g_uplayer)-self.batch_size]
         pre_hidden = pre_hidden+self.hidden[:len(g_uplayer)-self.batch_size]
         

@@ -18,23 +18,23 @@ class Data(object):
         #lookup_table = np.zeros([n_dict, 25],dtype = np.float32)
         self.unigram_table = np.asarray(v_lt, dtype = np.float32)
         n_dim = int(li[1])
-        for i in xrange(n_dict):
+        for i in range(n_dict):
             li = f.readline()
-            li = unicode(li,'utf-8')
+            li = str(li,'utf-8')
             li = li.split()
             if (len(li)!=wordVecLen+1):
                 continue
             self.dic_c2idx[li[0]] = i
             self.dic_idx2c[i] = li[0]
             if(flag_random_lookup_table == True):continue
-            for j in xrange(n_dim):
+            for j in range(n_dim):
                 self.unigram_table[i][j] = float(li[j+1])
         f.close()
         if(use_bigram_feature == True):
             v_lt = self.rng.normal(loc = 0.0, scale = 0.01, size=(n_dict * n_dict, wordVecLen))
             self.bigram_table = np.asarray(v_lt, dtype = np.float32)
-            for i in xrange(n_dict):
-                for j in xrange(n_dict):
+            for i in range(n_dict):
+                for j in range(n_dict):
                     self.bigram_table[i*n_dict + j] = 0.5 * (self.unigram_table[i] + self.unigram_table[j])
         
         
@@ -51,7 +51,7 @@ class Data(object):
     
         for line in li:
             #print line
-            line = unicode(line,'utf-8')
+            line = str(line,'utf-8')
             line_t = line.split()
             if(len(line_t)==0):
                 if(len(data_sentence) == 0):
@@ -86,7 +86,7 @@ class Data(object):
             f.close()
         
             for line in li:
-                line = unicode(line,'utf-8')
+                line = str(line,'utf-8')
                 line_t = line.split()
                 if(len(line_t)==0):
                     if(len(data_sentence) == 0):
@@ -113,7 +113,7 @@ class Data(object):
         li = f.readlines()
         f.close()
         for line in li:
-            line = unicode(line,'utf-8')
+            line = str(line)
             line_t = line.split()
             if(len(line_t)==0):
                 if(len(data_sentence) == 0):
@@ -158,7 +158,7 @@ class Data(object):
         self.rng.shuffle(permu)
         data_out = []
         label_out = []
-        for i in xrange(l_len):
+        for i in range(l_len):
             data_out.append(data_in[permu[i]])
             label_out.append(label_in[permu[i]])
         return (data_out,label_out)
@@ -175,7 +175,7 @@ class Data(object):
             s = ''
             for ch in sentence:
                 s += (self.dic_idx2c[ch].encode('utf-8') + ' ')
-            print s,'\n'
+            print(s + '\n')
 
         
         

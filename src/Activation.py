@@ -1,4 +1,5 @@
 import numpy as np
+
 class ReLU(object):
     def __init__(self):
         self.name = 'ReLU'
@@ -52,10 +53,10 @@ class Layer(object):
         self.W = W
         self.b = b
 
-from LSTM import LSTM_HiddenLayer
-from RNN import RNN_HiddenLayer
-from GRU import GRU_HiddenLayer
-from MLP import MLP_HiddenLayer
+from src.LSTM import LSTM_HiddenLayer
+from src.RNN import RNN_HiddenLayer
+from src.GRU import GRU_HiddenLayer
+from src.MLP import MLP_HiddenLayer
      
 def Add_HiddenLayer(alpha,
                      squared_filter_length_limit,

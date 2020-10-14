@@ -1,11 +1,11 @@
 import numpy as np
 import sys
 import time
-from CWS import CWS
-from Data import Data
-from MLP import MLP_LayerSetting
-from LSTM import LSTM_LayerSetting
-from Activation import *
+from src.CWS import CWS
+from src.Data import Data
+from src.MLP import MLP_LayerSetting
+from src.LSTM import LSTM_LayerSetting
+from src.Activation import *
 if __name__ == '__main__':
     flag_toy_data = False
     squared_filter_length_limit = False

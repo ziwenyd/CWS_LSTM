@@ -4,6 +4,7 @@ import time
 from collections import OrderedDict
 # from Activation import ReLU,Sigmoid,Tanh,Add_HiddenLayer
 from src.Activation import ReLU,Sigmoid,Tanh,Add_HiddenLayer
+# import pdb
 
 class CWS_Layer(object):
     def __init__(self, rng, n_in, n_out, W=None, b=None, activation = 'tanh'):
@@ -167,23 +168,34 @@ class CWS(object):
                     x.append(EOSid)
                     continue
                 x.append(sentence[pos])
-            
-            init_v = self.one_step(x,ans[i],init_v,flag)
+            try:
+                init_v = self.one_step(x,ans[i],init_v,flag)
+            except IndexError:
+                print('x is: ' +  str(x)+ ', type = ' + str(type(x)))
+                print('i is: ' + str(i) + ', type = ' + str(type(i)))
+                print('ans is: ' + str(ans) + ', type = ' + str(type(ans)))
+                print('ans[i] is: ' + ans[i] + ', type = ' + str(type(ans[i])))
+                print('init_v is: ' + str(init_v) + ', type = ' + str(type(init_v)))
+                print('flag is: ' + str(flag) + ', type = ' + str(type(flag)))
             result.append(init_v)
         return result
     
     def get_best(self,sentence, ans, flag):
         self.clear_layers()
         result = self.decode_fun(sentence, ans, flag)
+        # print('result from decode_fun is : ' + str(result) + ', type = ' + str(type(result)))
+
         sen_len = len(ans)
         ret = [-1 for i in range(sen_len)]
         Max = None
         pos = 0
         cur = sen_len - 1
+        # print('cur is ' + str(cur) + ', type = ' + str(type(cur)))
+
         for i in range(4):
             if result[cur][i] is None:
                 continue
-            if result[cur][i] > Max or Max is None:
+            if Max is None or result[cur][i] > Max:
                 Max = result[cur][i]
                 pos = i
         ret[sen_len - 1] = pos
@@ -306,8 +318,14 @@ class CWS(object):
         
     
     def fit(self):
+        # pdb.set_trace()
         M = len(self.data.data_train)
-        batch_num = M / self.batch_size
+        batch_num = int( M / self.batch_size)
+        print("type of batch_num: " + str(type(batch_num)))
+        print("value of batch_num: " + str(batch_num))
+        print('value of self.batch_size: ' + str(self.batch_size))
+        print('value of M: ' + str(M))
+
         print ('Start training...')
         sys.stdout.flush()
         best_validation_F = -np.inf
@@ -323,7 +341,11 @@ class CWS(object):
                 self.dict_bigram_Id = {}
                 self.dict_unigram_Id = {}
                 for index in range(start, end):
-                    (y_pred,cost) = self.get_best(self.data.data_train[index], self.data.label_train[index], 1.0)
+                    # print("self.data.label_train[index] is: " + str(self.data.label_train[index]), ', type = ' + str(type(self.data.label_train[index])) + ', size = ' + str(len(self.data.label_train[index])))
+                    # print('self.data.label_train is'+ str(self.data.label_train), ', type = ' + str(type(self.data.label_train))+', size = ' + str(len(self.data.label_train)))
+                    # print('index is: ' + str(index))
+
+                    (y_pred,cost) = self.get_best(self.data.data_train[index], self.data.label_train[index], 1.0) # get_best(sentence, ans, flag)
                     ae_costs += cost 
                     self.modify_batch_grad(self.data.data_train[index], y_pred, self.data.label_train[index])
                             
@@ -357,7 +379,8 @@ class CWS(object):
             fw = open(local_seg_result_file, 'w')
             for line in seg:
                 for word in line:
-                    fw.write(word.encode('utf-8') + ' ')
+                    # fw.write(word.encode('utf-8') + ' ')
+                    fw.write(word + ' ')
                 fw.write('\n')
             fw.close()
             
@@ -371,8 +394,11 @@ class CWS(object):
         res = []
         ans = []
         M = len(data)
+        print('M = len(test data) = ' + str(M))
+        print('label from the parameter is: ' + str(label))
+        print('label from the parameter -- type is ' + str(type(label)))
         for index in range(M):
-            (y_pred,cost) = self.get_best(data[index], label[index], 0.0)
+            (y_pred,cost) = self.get_best(data[index], label[index], 0.0) # def get_best(sentence, ans, flag):
             res.append(y_pred)
         pred_seg = self.get_seg(data, res, self.data.dic_idx2c)
         ans_seg = self.get_seg(data, label, self.data.dic_idx2c)
